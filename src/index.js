@@ -26,12 +26,7 @@ io.on("connection", (socket) => {
             case 'search':
                 if(event.data.searchString){
                     let productLink = await getProductLink(event.data.searchString)
-                    let result = await handleJob(productLink);
-                    const msg = {
-                        command: "searchResult",
-                        data: {allQAndA: result}
-                    }
-                    socket.emit("FromServer", msg);
+                    handleJob(productLink,sendToClient);
                 }
                 break;
 
@@ -43,7 +38,11 @@ io.on("connection", (socket) => {
     socket.on("disconnect", () => {
         console.log("Client disconnected");
     });
+    const sendToClient = (msg) => {
+        socket.emit("FromServer", msg);
+    }
 });
+
 
 server.listen(port, () => console.log(`Listening on port ${port}`));
 

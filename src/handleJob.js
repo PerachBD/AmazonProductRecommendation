@@ -1,7 +1,7 @@
 const axios = require('axios');
 const { extractAllQuestionsAndAnswersSectionLink,extractQuestionAndAnswerLinks,extractQuestionAndAnswers,extractFirstProductFromSearcPage } = require('./htmlParser');
 
-const handleJob = async (productLink) => {
+const handleJob = async (productLink,sendToClient) => {
     try{
         const respProductLink = await axios.get(productLink);
         const AllquestionsAndAnswersLink = extractAllQuestionsAndAnswersSectionLink(respProductLink.data);
@@ -14,7 +14,11 @@ const handleJob = async (productLink) => {
             questionsAndAnswers.push(await extractQuestionAndAnswers(get_base_url(AllquestionsAndAnswersLink),respQuestionsAndAnswersLink.data))
         }
 
-
+        const msg = {
+            command: "searchResult",
+            data: {allQAndA: questionsAndAnswers}
+        }
+        sendToClient(msg)
         return questionsAndAnswers;
         // Error while accessing url
     }catch(err){
