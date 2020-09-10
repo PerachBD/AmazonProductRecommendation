@@ -39,6 +39,7 @@ io.on("connection", (socket) => {
         console.log("Client disconnected");
     });
     const sendToClient = (msg) => {
+        console.log("resultSentToClient");
         socket.emit("FromServer", msg);
     }
 });

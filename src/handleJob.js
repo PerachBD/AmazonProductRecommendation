@@ -8,18 +8,20 @@ const handleJob = async (productLink,sendToClient) => {
         
         const respAllquestionsAndAnswersLink = await axios.get(AllquestionsAndAnswersLink);
         const questionAndAnswersLinks = await extractQuestionAndAnswerLinks(get_base_url(AllquestionsAndAnswersLink),respAllquestionsAndAnswersLink.data);
-        const questionsAndAnswers=[];
+        const questionsAndAnswersparomises=[];
         for(let questionAndAnswerLink of questionAndAnswersLinks){
             const respQuestionsAndAnswersLink = await axios.get(questionAndAnswerLink);
-            questionsAndAnswers.push(await extractQuestionAndAnswers(get_base_url(AllquestionsAndAnswersLink),respQuestionsAndAnswersLink.data))
+            questionsAndAnswersparomises.push(extractQuestionAndAnswers(get_base_url(AllquestionsAndAnswersLink),respQuestionsAndAnswersLink.data))
         }
+        Promise.all(questionsAndAnswersparomises).then((result)=>{
+            const msg = {
+                command: "searchResult",
+                data: {productLink:productLink,allQAndA: result}
+            }
+            sendToClient(msg)
+        })
 
-        const msg = {
-            command: "searchResult",
-            data: {allQAndA: questionsAndAnswers}
-        }
-        sendToClient(msg)
-        return questionsAndAnswers;
+        // return questionsAndAnswers;
         // Error while accessing url
     }catch(err){
         console.error(err.toString());
