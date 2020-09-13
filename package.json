@@ -20,7 +20,6 @@
     "node-html-parser": "^1.2.20",
     "p-limit": "^3.0.2",
     "sentiment": "^5.0.2",
-    "socket.io": "^2.3.0",
     "swagger-jsdoc": "^4.0.0",
     "swagger-ui-express": "^4.1.4"
   }
