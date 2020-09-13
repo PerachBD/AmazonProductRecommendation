@@ -26,8 +26,8 @@ The product is intended for consumers of the Amazon website who want to get an a
 * mocha: Simple, flexible, fun JavaScript test framework for Node.js.
 
 ### Snapshots:
-![HomePage](Documentation/HomePage.png)
-![RecommendationPage](Documentation/recommendationPage.png)
-![queAndAnsView](Documentation/queAndAnsView.png)
-![searchQueAndAndView](Documentation/searchQueAndAndView.png)
+![HomePage](Documentation/HomePage.PNG)
+![RecommendationPage](Documentation/recommendationPage.PNG)
+![queAndAnsView](Documentation/queAndAnsView.PNG)
+![searchQueAndAndView](Documentation/searchQueAndAndView.PNG)
 
