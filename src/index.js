@@ -1,6 +1,5 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const socketIo = require("socket.io");
 const cors = require('cors');
 const swaggerJsDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');

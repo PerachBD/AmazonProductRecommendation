@@ -1,10 +1,11 @@
 const HTMLParser = require('node-html-parser');
 const axios = require('axios');
+const constants = require('./utils/constants');
 
+// gets the link to All product Q&A
 const extractAllQuestionsAndAnswersSectionLink = (htmlcontent) => {
     try {
         const root = HTMLParser.parse(htmlcontent);
-
         const q_a_div = root.querySelector('.cdQuestionLazySeeAll').toString();
         const q_a_div_child = HTMLParser.parse(q_a_div);
         q_a_a_tag = q_a_div_child.querySelector('a');
@@ -15,26 +16,28 @@ const extractAllQuestionsAndAnswersSectionLink = (htmlcontent) => {
         return err;
     };
 }
-const extractQuestionAndAnswerLinks = async (baseUrl, htmlcontent) => {
+// get All questions links
+const extractQuestionsLinks = async ( htmlcontent) => {
 
     let root = HTMLParser.parse(htmlcontent);
     const result = []
-    result.push(...extractQuestionLink(baseUrl, htmlcontent));
+    result.push(...extractQuestionLink( htmlcontent));
 
     const pagesContent = [];
-    const pagesLinks = getPagesLinks(baseUrl, root);
+    const pagesLinks = getPagesLinks( root);
+    // get pages content asynchronous way
     for (let pageLink of pagesLinks) {
         pagesContent.push(axios.get(pageLink));
     }
     let contents;
     await Promise.all(pagesContent).then(result => contents = result)
     for (let content of contents) {
-        result.push(...extractQuestionLink(baseUrl, content.data));
+        result.push(...extractQuestionLink(content.data));
     }
     return result
 }
-
-const extractQuestionAndAnswers = async (baseUrl, htmlcontent) => {
+// get for question page the question and answers includes
+const extractQuestionAndAnswers = async (htmlcontent) => {
 
     let root = HTMLParser.parse(htmlcontent);
     const questionString = getQuestionString(root)
@@ -44,7 +47,8 @@ const extractQuestionAndAnswers = async (baseUrl, htmlcontent) => {
     answers.push(...getAnswersListfromPage(root));
 
     const pagesContent = [];
-    const pagesLinks = getPagesLinks(baseUrl, root);
+    const pagesLinks = getPagesLinks( root);
+    // get pages content asynchronous way
     for (let pageLink of pagesLinks) {
         pagesContent.push(axios.get(pageLink));
     }
@@ -57,8 +61,8 @@ const extractQuestionAndAnswers = async (baseUrl, htmlcontent) => {
 
     return { question: questionString, questionDate, answers: answers }
 }
-
-const extractQuestionLink = (baseUrl, htmlcontent) => {
+// get questions links from one page content
+const extractQuestionLink = (htmlcontent) => {
     try {
         const root = HTMLParser.parse(htmlcontent);
         if (!root.querySelector('.askTeaserQuestions')) return [];
@@ -68,7 +72,7 @@ const extractQuestionLink = (baseUrl, htmlcontent) => {
         const Contained_links = [];
         for (let link_element of links_elements) {
             let q_link = link_element.getAttribute("href");
-            const fullUrl = baseUrl + q_link
+            const fullUrl = constants.baseUrl + q_link
             if (q_link.startsWith('/ask/questions/') && !Contained_links.includes(fullUrl)) {
                 Contained_links.push(fullUrl);
             }
@@ -77,17 +81,19 @@ const extractQuestionLink = (baseUrl, htmlcontent) => {
         return Contained_links;
     } catch (err) { return err }
 }
-
+// get the question from one question page content
 const getQuestionString = (root) => {
     const q_p = root.querySelectorAll('.askAnswersAndComments')[0].toString();
     const q_p_child = HTMLParser.parse(q_p);
     const questionString = q_p_child.querySelector('span').rawText;
     return questionString;
 }
+// get the question date from one question page content
 const getQuestionDate = (root) => {
     const questionDate = root.querySelectorAll('.a-spacing-top-mini')[1].rawText.replace('asked on ', '');
     return questionDate;
 }
+// get the answuers from one answers page content
 const getAnswersListfromPage = (root) => {
     let answersStrings = [];
     if (root.querySelectorAll('.askAnswersAndComments').length >= 2) {
@@ -106,8 +112,8 @@ const getAnswersListfromPage = (root) => {
     }
     return answersStrings;
 }
-
-const getPagesLinks = (baseUrl, root) => {
+// get list of pages links
+const getPagesLinks = (root) => {
     try {
         let aNormalList = root.querySelectorAll('.a-normal')
         if (aNormalList && aNormalList.length) {
@@ -117,22 +123,22 @@ const getPagesLinks = (baseUrl, root) => {
             let before = splitedLink[0];
             const links = [];
             for (let i = 1; i <= numberOfPages; i++) {
-                links.push(`${baseUrl}${before}/${i + 1}`)
+                links.push(`${constants.baseUrl}${before}/${i + 1}`)
             }
             return links
         }
         return []
     } catch (err) { return [] }
 }
-
-const extractFirstProductFromSearcPage = (baseUrl, htmlcontent) => {
+//get amazons product link 
+const extractFirstProductFromSearchPage = ( htmlcontent) => {
     let root = HTMLParser.parse(htmlcontent);
-    const firstProductLink = baseUrl + root.querySelectorAll('.s-no-outline')[1].getAttribute('href');
+    const firstProductLink = constants.baseUrl + root.querySelectorAll('.s-no-outline')[1].getAttribute('href');
     return firstProductLink;
 }
 
 
 exports.extractAllQuestionsAndAnswersSectionLink = extractAllQuestionsAndAnswersSectionLink;
-exports.extractQuestionAndAnswerLinks = extractQuestionAndAnswerLinks;
+exports.extractQuestionsLinks = extractQuestionsLinks;
 exports.extractQuestionAndAnswers = extractQuestionAndAnswers;
-exports.extractFirstProductFromSearcPage = extractFirstProductFromSearcPage;
+exports.extractFirstProductFromSearchPage = extractFirstProductFromSearchPage;

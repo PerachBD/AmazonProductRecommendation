@@ -2,8 +2,8 @@ const assert = require('chai').assert;
 const { scoreAnswers } = require('../src/analyzeRecommendations')
 
 
-describe('Should success to score all answers', function () {
-    it('Should success to score all Q&A', () => {
+describe('Should success to give a recommendation', function () {
+    it('Should success to score the positivity of the answers in the product. from 0 to 10.', () => {
         let mock = [{
             answers: ["They do float, always on their sides.,Yes. I used them in baby shower table centerpieces floating, and they're still in use at bath time.",
                 "Holes are on the bottom",
@@ -14,7 +14,7 @@ describe('Should success to score all answers', function () {
                 "Try to contact the seller through Amazon. Go to your orders and click on the ducks then select refund or replace and let them know.",
             ]
         }]
-        scoreAnswers(mock);
-        assert(1,1)
+        score = scoreAnswers(mock);
+        assert.equal(Math.round(score),6)
     })
 })

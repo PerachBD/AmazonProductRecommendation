@@ -1,7 +1,6 @@
 const { handleJob, getProductLink } = require('../handleJob');
 
 module.exports = app => {
-    // Routes
     /**
      * @swagger
      * /recommend:
@@ -22,16 +21,21 @@ module.exports = app => {
 
     app.get('/recommend', async (req, res) => {
         let productLink;
+        //if search by url
         if (validURL(req.query.search)) {
+            // if is amazon`s link
             if (req.query.search.startsWith("https://www.amazon.com")) {
                 productLink = req.query.search;
             }
+            // if not amazon`s link
             else{
                 res.send({command: "errorOccurred",data: { error: new Error("Product link isn`t amazon`s link")}})
                 return;
             }
         }
+        //search by name, getting product link
         else productLink = await getProductLink(req.query.search);
+        // get scraped Q&A and recommendation
         let result = await handleJob(productLink)
         res.send(result);
     });
