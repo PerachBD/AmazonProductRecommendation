@@ -1,9 +1,9 @@
-const http = require("http");
 const express = require('express');
 const bodyParser = require('body-parser');
 const socketIo = require("socket.io");
 const cors = require('cors');
-const { handleJob,getProductLink } = require('./handleJob');
+const swaggerJsDoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
 
 const port = 5000;
 const app = express()
@@ -12,44 +12,24 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const server = http.createServer(app);
-const io = socketIo(server);
-
-io.on("connection", (socket) => {
-    console.log("New client connected");
-    socket.on("FromClient", async (event) => {
-        if (!event.command) {
-            throw new Error('not command in the request')
-        }
-        console.log('Server got command: ', event.command);
-        switch (event.command) {
-            case 'search':
-                if(event.data.searchString){
-                    let productLink = await getProductLink(event.data.searchString)
-                    handleJob(productLink,sendToClient);
-                }
-                break;
-
-            default:
-                break;
-        }
-        console.log('event', event);
-    });
-    socket.on("disconnect", () => {
-        console.log("Client disconnected");
-    });
-    const sendToClient = (msg) => {
-        console.log("resultSentToClient");
-        socket.emit("FromServer", msg);
+const swaggerOptions = {
+  swaggerDefinition: {
+    info: {
+      title: "Recommendation searching API",
+      description: "Search product recommendations by name",
+      contact: {
+        name: "Perach",
+        email: "perach13@gmail.com"
+      },
+      servers: [{url:"http://localhost:5000",description:"Development server"}]
     }
-});
+  },
+  apis: ["src/routes/recommendationRoutes.js"]
+};
 
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
+app.use('/api-docs',swaggerUi.serve, swaggerUi.setup(swaggerDocs))
 
-server.listen(port, () => console.log(`Listening on port ${port}`));
+require("./routes/recommendationRoutes")(app);
 
-// func()
-// Checks if URL is valid
-function validURL(str) {
-    var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
-    return regexp.test(str);
-}
+app.listen(port, () => console.log(`Listening on port ${port}`));

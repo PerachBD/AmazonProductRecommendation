@@ -34,4 +34,5 @@ describe('Should success to extract link of QandA from html page', function() {
         const results = await extractFirstProductFromSearcPage("https://www.amazon.com",html);
         assert(results,'https://www.amazon.com/gp/slredirect/picassoRedirect.html/ref=pa_sp_atf_aps_sr_pg1_1?ie=UTF8&adId=A09520392GA8QN7SSMSVP&url=%2FCoredy-Vacuuming-Sweeping-Controls-Supported%2Fdp%2FB085L6K7RV%2Fref%3Dsr_1_1_sspa%3Fdchild%3D1%26keywords%3Dirobot%2Broomba%26qid%3D1599738675%26sr%3D8-1-spons%26psc%3D1&qualifier=1599738675&id=4376292356824159&widgetName=sp_atf')
     })
+    
 })

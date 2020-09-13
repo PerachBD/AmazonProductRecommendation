@@ -1,38 +1,42 @@
 const axios = require('axios');
+const pLimit = require('p-limit');
 const { extractAllQuestionsAndAnswersSectionLink, extractQuestionAndAnswerLinks, extractQuestionAndAnswers, extractFirstProductFromSearcPage } = require('./htmlParser');
 const { scoreAnswers } = require('./analyzeRecommendations');
+const limit = pLimit(30);
 
-const handleJob = async (productLink, sendToClient) => {
+const handleJob = async (productLink) => {
+    console.log("starting working on job");
     try {
         const respProductLink = await axios.get(productLink);
         const AllquestionsAndAnswersLink = extractAllQuestionsAndAnswersSectionLink(respProductLink.data);
 
         const respAllquestionsAndAnswersLink = await axios.get(AllquestionsAndAnswersLink);
         const questionAndAnswersLinks = await extractQuestionAndAnswerLinks(get_base_url(AllquestionsAndAnswersLink), respAllquestionsAndAnswersLink.data);
-        const questionsAndAnswersparomises = [];
+        const questionsAndAnswersPromises = [];
         for (let questionAndAnswerLink of questionAndAnswersLinks) {
-            const respQuestionsAndAnswersLink = await axios.get(questionAndAnswerLink);
-            questionsAndAnswersparomises.push(extractQuestionAndAnswers(get_base_url(AllquestionsAndAnswersLink), respQuestionsAndAnswersLink.data))
+            questionsAndAnswersPromises.push(limit(()=>axios.get(questionAndAnswerLink)));
         }
-        Promise.all(questionsAndAnswersparomises).then((result) => {
-            score = scoreAnswers(result)
-            const msg = {
-                command: "searchResult",
-                data: { productLink: productLink, allQAndA: result, score: score }
+        const questionsAndAnswers = [];
+        await Promise.all(questionsAndAnswersPromises).then(async(results) => {
+            for (let result of results) {
+                questionsAndAnswers.push(await extractQuestionAndAnswers(get_base_url(AllquestionsAndAnswersLink), result.data))
             }
-            sendToClient(msg)
         })
-
-        // return questionsAndAnswers;
+        const score = scoreAnswers(questionsAndAnswers);
+        const msg = {
+            command: "searchResult",
+            data: { productLink: productLink, allQAndA: questionsAndAnswers, score: score }
+        }
+        console.log("finish working on job");
+        return msg
         // Error while accessing url
     } catch (err) {
         console.error(err.toString());
         const msg = {
             command: "errorOccurred",
-            data: { error:err }
+            data: { error: err }
         }
-        sendToClient(msg)
-        return err;
+        return msg;
     };
 }
 
