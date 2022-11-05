@@ -9,7 +9,7 @@ The product is intended for consumers of the Amazon website who want to get an a
 * Get an indication of the amount of questions / data in relation to Amazon products.
 
 ## Architecture
-![FlowDiagram](Documentation/FlowDiagram.png)
+![FlowDiagram-removebg-preview](https://user-images.githubusercontent.com/11539388/200133480-60f3a912-f560-411c-b428-54b1bfe32c47.jpg)
 
 ## Quick Start:
 1. run `git clone https://github.com/PerachBD/AmazonProductRecommendation.git`
